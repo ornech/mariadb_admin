@@ -130,7 +130,7 @@ Le service Mariadb est maintenant accessible depuis n’importe quelle adresse I
 
 # Création des clés et certificats SSL
 
-Nous allons 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
+Nous allons créer 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
  - CA common Name : MariaDB_CA
  - Serveur common Name : [IP DU SERVEUR]
  - Client common Name : MariaDB_client
