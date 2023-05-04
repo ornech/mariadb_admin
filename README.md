@@ -62,13 +62,10 @@ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 https://mariadb.com/kb/en/configuring-mariadb-for-remote-client-access/
 
 ``` bash
-[mysqld]
-
-...
-
-Bind-address = 0.0.0.0
-
-...
+[mysqld]\
+...\
+Bind-address = 0.0.0.0\
+...\
 ``` 
 Redémarrez le serveur Mariadb
 ``` bash
