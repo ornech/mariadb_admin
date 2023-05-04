@@ -82,9 +82,9 @@ sudo netstat -tulnp | grep 3306
 
 
 > **Note**
-> Options netstat utilisées \
->  - -t toutes les connexions TCP en cours.\
->  - -u toutes les connexions UDP en cours.\
+> Options netstat utilisées 
+>  - -t toutes les connexions TCP en cours.
+>  - -u toutes les connexions UDP en cours.
 >  - -l affiche les ports à l’"écoute" pour les connexions entrantes.
 >  - -n affiche les numéros de port.
 >  - -p affiche le nom du processus qui utilise le port.
