@@ -226,29 +226,6 @@ sudo chown -Rv mysql:root /etc/mysql/ssl/*
  ```
  > **WARNING** Si ces fichiers n'ont pas comme propriétaire "mysql", mariadb sera incapble de les voir et un message d'erreur vous indiquera que les certificats ne sont pas trouvés.
 
-## Copie des certicats et clé coté client
-Connectez vous à votre machine cliente. Nous allons copier 3 fichiers:
- - client-cert.pem: certificat SSL du client
- - client-key.pem: clé privée du client
- - ca-cert.pem: certificat d'autorité (CA) qui a signé le certificat du client et du serveur
- 
-Depuis le client, utilisez la commande scp :
-``` bash
-scp <UTILISATEUR>@<IP SERVEUR>:/chemin/fichier /chemin/client
-```
-où :
- - <UTILISATEUR> est le nom de l'utilisateur précédement créé sur le serveur
- - <IP SERVEUR> est l'adresse IP du serveur
- - /chemin/fichier est le chemin absolu du fichier sur le serveur
- - /chemin/client est le chemin local où vous souhaitez copier le fichier
-
-Exemple :
-``` bash
-scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-cert.pem /home/utilisateur/.mysql/
-scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-key.pem /home/utilisateur/.mysql/
-scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/ca-cert.pem /home/utilisateur/.mysql/
-```
-
 # Configuration de Mariadb
 Logguez vous sur l'hôte serveur
 
@@ -298,3 +275,47 @@ cat /var/log/mysql/error.log
 1. Vérifiez que les certificats possède bien les droits accès en 644
 2. Vérifiez que les certificats aient bien comme propriétaire mysql:root
 3. Vérifiez les droits d'accès du répertoire /etc/mysql/ssl
+
+# Configuration du client
+ Connectez-vous à l'hôte client
+ 
+## Copie des certicats et clé coté client
+Nous devons récupérer 3 fichiers:
+ - client-cert.pem: certificat SSL du client
+ - client-key.pem: clé privée du client
+ - ca-cert.pem: certificat d'autorité (CA) qui a signé le certificat du client et du serveur
+ 
+Depuis le client, utilisez la commande scp :
+``` bash
+scp <UTILISATEUR>@<IP SERVEUR>:/chemin/fichier /chemin/client
+```
+où :
+ - <UTILISATEUR> est le nom de l'utilisateur précédement créé sur le serveur
+ - <IP SERVEUR> est l'adresse IP du serveur
+ - /chemin/fichier est le chemin absolu du fichier sur le serveur
+ - /chemin/client est le chemin local où vous souhaitez copier le fichier
+
+Exemple :
+``` bash
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-cert.pem /home/utilisateur/.mysql/
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-key.pem /home/utilisateur/.mysql/
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/ca-cert.pem /home/utilisateur/.mysql/
+```
+
+Editez le fichier ~/.mysql/my.cnf
+``` bash
+nano ~/.mysql/my.cnf
+```
+Ajoutez ces lignes au groupe [client]
+``` bash
+#ssl
+ssl-ca=/home/<VOTRE UTILISATEUR>/.mysql/ca-cert.pem
+ssl-cert=/home/<VOTRE UTILISATEUR>/.mysql/client-cert.pem
+ssl-key=/home/<VOTRE UTILISATEUR>/.mysql/client-key.pem
+```
+Testez votre configuration client
+``` bash
+mariadb -u admin -p -h <IP DU SERVEUR>
+```
+
+Les paramètres ssl-ca, ssl-cert et ssl-key sont maintenant renseignés par le fichier my.cnf
