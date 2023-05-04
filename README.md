@@ -3,8 +3,6 @@
 ## Que cherche t-on a obtenir ?
 ![image](https://user-images.githubusercontent.com/101867500/236282961-03069477-f3fb-4fa3-b5c9-997182ba1ad1.png)
 
-Le client et le serveur s’authentifie mutuellement via un certificat d’Autorité auto-signé.
-
 ## Liste des commandes utilisée
 
  - ls : Affiche le contenu d’un répertoire. Utilisez les options « -l » pour afficher tout les propriétés des fichiers et -a pour afficher l’ensemble des fichiers (fichiers cachés inclus)
@@ -38,14 +36,14 @@ sudo apt-get update
 sudo apt-get install openssh-server
 ```
 Créez un compte système pour le transfert de fichier
-
+``` bash
 sudo adduser nom_utilisateur
-
+```
 ### Configurez le serveur SSH
 ``` bash
 sudo nano /etc/ssh/sshd_config
 ```
-Modifiez le fichier comme suit
+Modifiez le fichier comme suit. Supprimez les commentaires des options indiquées et modifiez le paramètre.
 ``` bash
 …
 PermitRootLogin no
@@ -127,7 +125,7 @@ Le service Mariadb est maintenant accessible depuis n’importe quelle adresse I
 
 # Création des clés et certificats SSL
 
-Note: Nous allons 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
+Nous allons 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
  - CA common Name : MariaDB_CA
  - Serveur common Name : [IP DU SERVEUR]
  - Client common Name : MariaDB_client
@@ -150,8 +148,7 @@ Utilisez la clé CA pour générer le certificat CA
 ``` bash
 sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
 ```
-```
-> **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
 > - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
 > - ca-key: Fichier de clé pour l'autorité de certification (CA).
 
@@ -178,6 +175,9 @@ Signez le certificat serveur avec le certificat d’autorité et la clé CA
 sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
+> **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> - server-cert.pem: Fichier du certificat serveur .
+> - server-key: Fichier de la clé privé serveur.
 
 ## Générez la clé et le certificat client
 Créez le clé client
@@ -196,7 +196,28 @@ Signez le certificat client avec le certificat d’autorité et la clé CA
 openssl x509 -req -in client-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
 ```
 
+> **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> - client-cert.pem: Fichier du certificat client .
+> - client-key: Fichier de la clé privé client.
+ 
 ## Verification des certificats
 ``` bash
 openssl verify -CAfile ca-cert.pem server-cert.pem client-cert.pem
 ```
+## Copie des certicats et clé coté serveur
+Créez un répertoire 'ssl' dans /etc/mysql
+``` bash
+sudo mkdir /etc/mysql/ssl/
+``` 
+Copiez les certicats server et CA, ainsi que la clé serveur
+``` bash
+sudo cp -v ./server-cert.pem /etc/mysql/ssl/server-cert.pem
+sudo cp -v ./server-key.pem /etc/mysql/ssl/server-key.pem
+sudo cp -v ./ca-cert.pem /etc/mysql/ssl/ca-cert.pem
+```
+Modifiez le propriétaire de tous les fichiers précédement copiés dans /etc/mysql/ssl
+``` bash
+sudo chown -Rv mysql:root /etc/mysql/ssl/*
+ ```
+ 
+ 
