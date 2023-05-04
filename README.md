@@ -166,15 +166,23 @@ f) Vérifiez le propriétaire du répertoire /etc/mysql/ssl
 cd ..
 ls -la
 ```
+![image](https://user-images.githubusercontent.com/101867500/236324691-5064cb03-3ef2-4047-9184-7e25b297a660.png)
+
 
 g) Vérifiez les droits d’accès et propriétaire du fichier /etc/mysql/ssl/ca-cert.pem
 ``` bash
 cd /etc/mysql/ssl
 ls -la
+```
+![image](https://user-images.githubusercontent.com/101867500/236325244-14c13660-8281-414b-9b81-a78087c43562.png)
+
+Pour corriger
+``` bash
 sudo chmod 644 ./ca-cert.pem
 sudo chown mysql:root ./ca-cert.pem
 ```
 ## Générer la clé et certificat serveur
+Créez un répertoire temporaire pour la création de
 Créez la clé serveur
 ``` bash
 sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
