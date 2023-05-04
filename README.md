@@ -27,15 +27,20 @@ Le client et le serveur s’authentifie mutuellement via un certificat d’Autor
 
 # Pré-requis sur le serveur
 
-Vérifiez que le port réseau 3306 soit à l’écoute
-``` bash
-sudo netstat -tulnp | grep 3306
-```
-
 Vérifiez que le service mariadb.service soit actif
 ``` bash
 sudo systemctl status mariadb.service
 ```
+![image](https://user-images.githubusercontent.com/101867500/236283558-b8c0a5fe-745b-4bf9-94b0-b208bb0b6dc0.png)
+
+
+Vérifiez que le port réseau 3306 soit à l’écoute
+``` bash
+sudo netstat -tulnp | grep 3306
+```
+![image](https://user-images.githubusercontent.com/101867500/236283689-f3a6c212-36e5-4f9f-afce-55681277ec62.png)
+
+
 > **Note**
 > Options netstat utilisées \
 > "-t" toutes les connexions TCP en cours.\
