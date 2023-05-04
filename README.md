@@ -279,7 +279,7 @@ cat /var/log/mysql/error.log
 # Configuration du client
  Connectez-vous à l'hôte client
  
-## Copie des certicats et clé coté client
+## Copie des certicats et clé sur le client
 Nous devons récupérer 3 fichiers:
  - client-cert.pem: certificat SSL du client
  - client-key.pem: clé privée du client
