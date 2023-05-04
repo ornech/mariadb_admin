@@ -257,7 +257,7 @@ Mariadb -u root -p
  ```
 
 Créez une base de données et un compte SQL
- ``` bash
+ ``` sql
 CREATE DATABASE db_test ;
 CREATE USER 'admin'@'%' IDENTIFIED BY 'password' REQUIRE SSL;
 GRANT ALL PRIVILEGES ON db_test.* TO admin'@'%';
