@@ -52,3 +52,32 @@ sudo netstat -tulnp | grep 3306
 
 > **Warning**
 > Mariadb est à l'écoute sur l'interface (loopback) 127.0.0.1. Les connexions distantes ne sont donc pas autorisées.
+
+# Configurez Mariadb afin d’autoriser les connexions distantes
+
+Rendez-vous sur le serveur et éditez le fichier 50-server.cnf
+``` bash
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+https://mariadb.com/kb/en/configuring-mariadb-for-remote-client-access/
+
+``` bash
+[mysqld]
+
+...
+
+Bind-address = 0.0.0.0
+
+...
+``` 
+Redémarrez le serveur Mariadb
+``` bash
+sudo systemctl restart mariadb.service
+```
+Depuis le client, tentez une connexion au serveur Mariadb
+``` bash
+ERROR 2002 (HY000): Can't connect to server on '172.16.254.151' (115)
+```
+https://mariadb.com/kb/en/mariadb-error-codes/
+
+Sans surprise, Mariadb ne répond pas.
