@@ -43,15 +43,22 @@ sudo netstat -tulnp | grep 3306
 
 > **Note**
 > Options netstat utilisées \
-> "-t" toutes les connexions TCP en cours.\
-> "-u" toutes les connexions UDP en cours.\
-> "-l" affiche les ports à l’"écoute" pour les connexions entrantes.
-> "-n" affiche les numéros de port.
-> "-p" affiche le nom du processus qui utilise le port.
+>  - -t toutes les connexions TCP en cours.\
+>  - -u toutes les connexions UDP en cours.\
+>  - -l affiche les ports à l’"écoute" pour les connexions entrantes.
+>  - -n affiche les numéros de port.
+>  - -p affiche le nom du processus qui utilise le port.
 
 
 > **Warning**
 > Mariadb est à l'écoute sur l'interface (loopback) 127.0.0.1. Les connexions distantes ne sont donc pas autorisées.
+
+Si vous tentez un connexino depuis le client au serveur Mariadb
+``` bash
+ERROR 2002 (HY000): Can't connect to server on '172.16.254.151' (115)
+```
+https://mariadb.com/kb/en/mariadb-error-codes/
+Sans surprise, Mariadb ne répond pas.
 
 # Configurez Mariadb afin d’autoriser les connexions distantes
 
@@ -71,10 +78,4 @@ Redémarrez le serveur Mariadb
 ``` bash
 sudo systemctl restart mariadb.service
 ```
-Depuis le client, tentez une connexion au serveur Mariadb
-``` bash
-ERROR 2002 (HY000): Can't connect to server on '172.16.254.151' (115)
-```
-https://mariadb.com/kb/en/mariadb-error-codes/
 
-Sans surprise, Mariadb ne répond pas.
