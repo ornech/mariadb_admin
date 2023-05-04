@@ -1,6 +1,7 @@
 # Présentation
 
 ## Que cherche t-on a obtenir ?
+![image](https://user-images.githubusercontent.com/101867500/236282961-03069477-f3fb-4fa3-b5c9-997182ba1ad1.png)
 
 Le client et le serveur s’authentifie mutuellement via un certificat d’Autorité auto-signé.
 
