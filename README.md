@@ -280,7 +280,7 @@ log_error = /var/log/mysql/error.log
 ssl-ca = /etc/mysql/ssl/ca-cert.pem
 ssl-cert = /etc/mysql/ssl/server-cert.pem
 ssl-key = /etc/mysql/ssl/server-key.pem
-``` bash
+```
 
 Redémarrez le serveur Mariadb:
 ``` bash
@@ -295,6 +295,6 @@ Affichez les journaux d’erreur
 ``` bash
 cat /var/log/mysql/error.log
 ```
-*1 Vérifiez que les certificats possède bien les droits accès en 644
-*2 Vérifiez que les certificats aient bien comme propriétaire mysql:root
-*3 Vérifiez les droits d'accès du répertoire /etc/mysql/ssl
+1. Vérifiez que les certificats possède bien les droits accès en 644
+2. Vérifiez que les certificats aient bien comme propriétaire mysql:root
+3. Vérifiez les droits d'accès du répertoire /etc/mysql/ssl
