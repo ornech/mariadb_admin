@@ -133,60 +133,42 @@ Note: Nous allons 3 certificats. A chaque création de certificat, nous devons i
  - Client common Name : MariaDB_client
 
 ## Générez la clé et le certicat d'autorité CA
- a) Depuis le serveur, créez le répertoire /etc/mysql/ssl
+Depuis le serveur, loggez vous avec l'utilisateur précédement créé
 ``` bash
-cd /etc/mysql
-sudo mkdir ssl
-cd ssl
+su <VOTRE UTILISATEUR>
 ```
- b) Créez la clé CA
+Créez un répertoire ssl à la racine de votre utilisateur
+``` bash
+mkdir ~/ssl
+cd ~/ssl
+```
+ Créez la clé privé CA
 ``` bash
 openssl genrsa 2048 > ca-key.pem
 ```
- c) Utilisez la clé CA pour générer le certificat CA pour Mariadb
+Utilisez la clé CA pour générer le certificat CA
 ``` bash
 sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
 ```
-Vous venez de créer dans /etc/mysql/ssl/ les fichiers: 
- - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
- - ca-key: Fichier de clé pour l'autorité de certification (CA).
+```
+> **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
+> - ca-key: Fichier de clé pour l'autorité de certification (CA).
 
-d) Vérifiez la validité du certificat CA
+Vérifiez la validité du certificat CA
 ``` bash
 openssl x509 -noout -dates -in /etc/mysql/ssl/ca-cert.pem
 ```
-e) Vérifiez les droits du répertoire /etc/mysql/ssl
-``` bash
-cd /etc/mysql
-ls -la
-```
 
-f) Vérifiez le propriétaire du répertoire /etc/mysql/ssl
-``` bash
-cd ..
-ls -la
-```
-![image](https://user-images.githubusercontent.com/101867500/236324691-5064cb03-3ef2-4047-9184-7e25b297a660.png)
-
-
-g) Vérifiez les droits d’accès et propriétaire du fichier /etc/mysql/ssl/ca-cert.pem
-``` bash
-cd /etc/mysql/ssl
-ls -la
-```
-![image](https://user-images.githubusercontent.com/101867500/236325244-14c13660-8281-414b-9b81-a78087c43562.png)
-
-Pour corriger
-``` bash
-sudo chmod 644 ./ca-cert.pem
-sudo chown mysql:root ./ca-cert.pem
-```
 ## Générer la clé et certificat serveur
-Créez un répertoire temporaire pour la création de
+
 Créez la clé serveur
 ``` bash
 sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
 ```
+> **Note**
+> Remarquez que nous avons défini le CN serveur avec l'option -subj "/CN=192.168.1.82" 
+
 Supprimez toute phrase secrète associée à la clé privée server-key.pem
 ``` bash
 sudo openssl rsa -in server-key.pem -out server-key.pem
@@ -196,11 +178,15 @@ Signez le certificat serveur avec le certificat d’autorité et la clé CA
 sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
+
 ## Générez la clé et le certificat client
 Créez le clé client
 ``` bash
 openssl req -newkey rsa:2048 -days 365000 -subj "/CN=Mariadb_Client" -nodes -keyout client-key.pem -out client-req.pem
 ```
+> **Note**
+> Remarquez que nous avons défini le CN client avec l'option -subj "/CN=Mariadb_Client" 
+
 Supprimez toute phrase secrète associée à la clé privée client-key.pem
 ``` bash
 openssl rsa -in client-key.pem -out client-key.pem
