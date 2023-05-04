@@ -26,14 +26,25 @@ Le client et le serveur s’authentifie mutuellement via un certificat d’Autor
 - netstat : Commande utilisée pour afficher les connexions réseau et les ports en cours d'utilisation sur un ordinateur.
 
 # Pré-requis sur le serveur
+## Installez et configurez ssh sur le serveur
 
+Un peu plus loin, nous aurons besoin de transférer la clé client et des certificats du serveur vers le client. Pour cela on utilisera la commande scp (Secure CoPy) qui fait partie des outils livrés avec open-ssh
+
+ - Site : https://www.openssh.com
+ - Documentation : https://www.openssh.com/manual.html
+
+Installez le serveur Open-SSH
+``` bash
+sudo apt-get update
+sudo apt-get install openssh-server
+```
 Vérifiez que le service mariadb.service soit actif
 ``` bash
 sudo systemctl status mariadb.service
 ```
 ![image](https://user-images.githubusercontent.com/101867500/236283558-b8c0a5fe-745b-4bf9-94b0-b208bb0b6dc0.png)
 
-
+## Vérification du port
 Vérifiez que le port réseau 3306 soit à l’écoute
 ``` bash
 sudo netstat -tulnp | grep 3306
@@ -60,7 +71,7 @@ ERROR 2002 (HY000): Can't connect to server on '172.16.254.151' (115)
 https://mariadb.com/kb/en/mariadb-error-codes/
 Sans surprise, Mariadb ne répond pas.
 
-# Configurez Mariadb afin d’autoriser les connexions distantes
+## Autorisez les connexions distantes vers Mariadb
 
 Rendez-vous sur le serveur et éditez le fichier 50-server.cnf
 ``` bash
@@ -87,3 +98,5 @@ sudo netstat -tulnp | grep 3306
 Le service Mariadb est maintenant accessible depuis n’importe quelle adresse IP.
 
 ![image](https://user-images.githubusercontent.com/101867500/236311373-ffc386f5-5f56-4de7-99c5-b8c92f98d054.png)
+
+
