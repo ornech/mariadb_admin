@@ -69,13 +69,21 @@ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 https://mariadb.com/kb/en/configuring-mariadb-for-remote-client-access/
 
 ``` bash
-[mysqld]\
-...\
-Bind-address = 0.0.0.0\
-...\
+[mysqld]
+...
+Bind-address = 0.0.0.0
+...
 ``` 
 Redémarrez le serveur Mariadb
 ``` bash
 sudo systemctl restart mariadb.service
 ```
+Vérifiez à nouveau le port 3306
+``` bash
+sudo netstat -tulnp | grep 3306
+```
+> **Note** Lorsque Mariadb est configuré pour écouter sur l'adresse IP 0.0.0.0, cela signifie qu'il écoute sur toutes les interfaces réseau disponibles sur l'ordinateur et sur les interfaces réseau publiques.
 
+Le service Mariadb est maintenant accessible depuis n’importe quelle adresse IP.
+
+![image](https://user-images.githubusercontent.com/101867500/236311373-ffc386f5-5f56-4de7-99c5-b8c92f98d054.png)
