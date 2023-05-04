@@ -26,9 +26,8 @@ Le client et le serveur s’authentifie mutuellement via un certificat d’Autor
 - netstat : Commande utilisée pour afficher les connexions réseau et les ports en cours d'utilisation sur un ordinateur.
 
 # Pré-requis sur le serveur
-## Installez et configurez ssh sur le serveur
-
-Un peu plus loin, nous aurons besoin de transférer la clé client et des certificats du serveur vers le client. Pour cela on utilisera la commande scp (Secure CoPy) qui fait partie des outils livrés avec open-ssh
+## Installez SSH-server
+Un peu plus loin, nous aurons besoin de transférer la clé client, le certificat client et le certificat d'autorité du serveur vers le client. Pour cela on utilisera la commande scp (Secure CoPy) qui fait partie des outils livrés avec open-ssh
 
  - Site : https://www.openssh.com
  - Documentation : https://www.openssh.com/manual.html
@@ -42,7 +41,7 @@ Créez un compte système pour le transfert de fichier
 
 sudo adduser nom_utilisateur
 
-### Configurez SSH
+### Configurez le serveur SSH
 ``` bash
 sudo nano /etc/ssh/sshd_config
 ```
@@ -126,3 +125,35 @@ Le service Mariadb est maintenant accessible depuis n’importe quelle adresse I
 
 ![image](https://user-images.githubusercontent.com/101867500/236311373-ffc386f5-5f56-4de7-99c5-b8c92f98d054.png)
 
+# Création du certificat CA (TLS/SSL)
+
+Note: Nous allons 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
+ - CA common Name : MariaDB_CA
+ - Serveur common Name : [IP DU SERVEUR]
+ - Client common Name : MariaDB_client
+
+a) Depuis le serveur, créez le répertoire /etc/mysql/ssl
+``` bash
+cd /etc/mysql
+sudo mkdir ssl
+cd ssl
+```
+b) Créez la clé CA
+``` bash
+openssl genrsa 2048 > ca-key.pem
+```
+c) Utilisez la clé CA pour générer le certificat CA pour Mariadb
+``` bash
+sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
+```
+Vous disposez maintenant: 
+ - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
+ - ca-key: Fichier de clé pour l'autorité de certification (CA).
+
+ca-key.pem
+
+ca-cert.pem
+
+/etc/mysql/ssl/ca-key.pem
+
+/etc/mysql/ssl/ca-cert.pem
