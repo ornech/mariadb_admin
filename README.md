@@ -39,6 +39,11 @@ Créez un compte système pour le transfert de fichier
 ``` bash
 sudo adduser nom_utilisateur
 ```
+Ajouter cet utilisateur au groupe sudo
+``` bash
+usermod -aG sudo nom_utilisateur
+```
+
 ### Configurez le serveur SSH
 ``` bash
 sudo nano /etc/ssh/sshd_config
@@ -146,7 +151,7 @@ openssl genrsa 2048 > ca-key.pem
 ```
 Utilisez la clé CA pour générer le certificat CA
 ``` bash
-sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
+openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
 ```
 > **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
 > - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
@@ -161,18 +166,18 @@ openssl x509 -noout -dates -in /etc/mysql/ssl/ca-cert.pem
 
 Créez la clé serveur
 ``` bash
-sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
+openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
 ```
 > **Note**
 > Remarquez que nous avons défini le CN serveur avec l'option -subj "/CN=192.168.1.82" 
 
 Supprimez toute phrase secrète associée à la clé privée server-key.pem
 ``` bash
-sudo openssl rsa -in server-key.pem -out server-key.pem
+openssl rsa -in server-key.pem -out server-key.pem
 ```
 Signez le certificat serveur avec le certificat d’autorité et la clé CA
 ``` bash
-sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
 > **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
@@ -222,7 +227,10 @@ sudo chown -Rv mysql:root /etc/mysql/ssl/*
  > **WARNING** Si ces fichiers n'ont pas comme propriétaire "mysql", mariadb sera incapble de les voir et un message d'erreur vous indiquera que les certificats ne sont pas trouvés.
 
 ## Copie des certicats et clé coté client
-Connectez vous à votre machine cliente. Nous allons
+Connectez vous à votre machine cliente. Nous allons copier 3 fichiers:
+ - client-cert.pem: certificat SSL du client
+ - client-key.pem: clé privée du client
+ - ca-cert.pem: certificat d'autorité (CA) qui a signé le certificat du client et du serveur
  
 Depuis le client, utilisez la commande scp :
 ``` bash
@@ -287,3 +295,6 @@ Affichez les journaux d’erreur
 ``` bash
 cat /var/log/mysql/error.log
 ```
+*1 Vérifiez que les certificats possède bien les droits accès en 644
+*2 Vérifiez que les certificats aient bien comme propriétaire mysql:root
+*3 Vérifiez les droits d'accès du répertoire /etc/mysql/ssl
