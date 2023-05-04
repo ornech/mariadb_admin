@@ -38,13 +38,40 @@ Installez le serveur Open-SSH
 sudo apt-get update
 sudo apt-get install openssh-server
 ```
+Créez un compte système pour le transfert de fichier
+
+sudo adduser nom_utilisateur
+
+### Configurez SSH
+``` bash
+sudo nano /etc/ssh/sshd_config
+```
+Modifiez le fichier comme suit
+``` bash
+…
+PermitRootLogin no
+…
+PasswordAuthentication yes
+…
+AllowUsers nom_utilisateur
+```
+Nous avons :
+ - Interdit les connexions SSH avec le compte root
+ - Activé l’authentification des utilisateurs système
+ - Autorisé un nouvel utilisateur à se connecter via SSH sur cette machine
+
+Redémarrez SSH
+``` bash
+sudo systemctl restart sshd
+```
+
+## Vérification
 Vérifiez que le service mariadb.service soit actif
 ``` bash
 sudo systemctl status mariadb.service
 ```
 ![image](https://user-images.githubusercontent.com/101867500/236283558-b8c0a5fe-745b-4bf9-94b0-b208bb0b6dc0.png)
 
-## Vérification du port
 Vérifiez que le port réseau 3306 soit à l’écoute
 ``` bash
 sudo netstat -tulnp | grep 3306
@@ -98,5 +125,4 @@ sudo netstat -tulnp | grep 3306
 Le service Mariadb est maintenant accessible depuis n’importe quelle adresse IP.
 
 ![image](https://user-images.githubusercontent.com/101867500/236311373-ffc386f5-5f56-4de7-99c5-b8c92f98d054.png)
-
 
