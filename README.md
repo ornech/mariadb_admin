@@ -90,11 +90,11 @@ sudo netstat -tulnp | grep 3306
 > **Warning**
 > Mariadb est à l'écoute sur l'interface (loopback) 127.0.0.1. Les connexions distantes ne sont donc pas autorisées.
 
-Si vous tentez un connexino depuis le client au serveur Mariadb
+Si vous tentez de vous connecter depuis le client 
 ``` bash
-ERROR 2002 (HY000): Can't connect to server on '172.16.254.151' (115)
+mariadb -u root -p - h <VOTRE IP>
+ERROR 2002 (HY000): Can't connect to server on '<VOTRE IP>' (115)
 ```
-https://mariadb.com/kb/en/mariadb-error-codes/
 Sans surprise, Mariadb ne répond pas.
 
 ## Autorisez les connexions distantes vers Mariadb
@@ -132,28 +132,72 @@ Note: Nous allons 3 certificats. A chaque création de certificat, nous devons i
  - Serveur common Name : [IP DU SERVEUR]
  - Client common Name : MariaDB_client
 
-a) Depuis le serveur, créez le répertoire /etc/mysql/ssl
+ a) Depuis le serveur, créez le répertoire /etc/mysql/ssl
 ``` bash
 cd /etc/mysql
 sudo mkdir ssl
 cd ssl
 ```
-b) Créez la clé CA
+ b) Créez la clé CA
 ``` bash
 openssl genrsa 2048 > ca-key.pem
 ```
-c) Utilisez la clé CA pour générer le certificat CA pour Mariadb
+ c) Utilisez la clé CA pour générer le certificat CA pour Mariadb
 ``` bash
 sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
 ```
-Vous disposez maintenant: 
+Vous venez de créer dans /etc/mysql/ssl/ les fichiers: 
  - ca-cert.pem: Fichier de certificat pour l'autorité de certification (CA).
  - ca-key: Fichier de clé pour l'autorité de certification (CA).
 
-ca-key.pem
+d) Vérifiez la validité du certificat CA
+``` bash
+openssl x509 -noout -dates -in /etc/mysql/ssl/ca-cert.pem
+```
+e) Vérifiez les droits du répertoire /etc/mysql/ssl
+``` bash
+cd /etc/mysql
+ls -la
+```
 
-ca-cert.pem
+f) Vérifiez le propriétaire du répertoire /etc/mysql/ssl
+``` bash
+cd ..
+ls -la
+```
 
-/etc/mysql/ssl/ca-key.pem
+g) Vérifiez les droits d’accès et propriétaire du fichier /etc/mysql/ssl/ca-cert.pem
+``` bash
+cd /etc/mysql/ssl
+ls -la
+sudo chmod 644 ./ca-cert.pem
+sudo chown mysql:root ./ca-cert.pem
+```
+# Générer la clé et certificat serveur
+Créez la clé serveur
+``` bash
+sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
+```
+Supprimez toute phrase secrète associée à la clé privée server-key.pem
+``` bash
+sudo openssl rsa -in server-key.pem -out server-key.pem
+```
+Signez le certificat serveur avec le certificat d’autorité et la clé CA
+``` bash
+sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+```
 
-/etc/mysql/ssl/ca-cert.pem
+# Générez la clé et le certificat client
+Créez le clé client
+``` bash
+openssl req -newkey rsa:2048 -days 365000 -subj "/CN=Mariadb_Client" -nodes -keyout client-key.pem -out client-req.pem
+```
+Supprimez toute phrase secrète associée à la clé privée client-key.pem
+``` bash
+openssl rsa -in client-key.pem -out client-key.pem
+```
+Signez le certificat client avec le certificat d’autorité et la clé CA
+``` bash
+openssl x509 -req -in client-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
+```
+
