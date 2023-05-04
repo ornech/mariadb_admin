@@ -175,7 +175,7 @@ Signez le certificat serveur avec le certificat d’autorité et la clé CA
 sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
-> **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
 > - server-cert.pem: Fichier du certificat serveur .
 > - server-key: Fichier de la clé privé serveur.
 
@@ -196,7 +196,7 @@ Signez le certificat client avec le certificat d’autorité et la clé CA
 openssl x509 -req -in client-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
 ```
 
-> **NOTE** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
+> **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
 > - client-cert.pem: Fichier du certificat client .
 > - client-key: Fichier de la clé privé client.
  
@@ -215,9 +215,75 @@ sudo cp -v ./server-cert.pem /etc/mysql/ssl/server-cert.pem
 sudo cp -v ./server-key.pem /etc/mysql/ssl/server-key.pem
 sudo cp -v ./ca-cert.pem /etc/mysql/ssl/ca-cert.pem
 ```
-Modifiez le propriétaire de tous les fichiers précédement copiés dans /etc/mysql/ssl
+Modifiez le propriétaire de tous les fichiers précédement copiés dans /etc/mysql/ssl pour les rendre accessible à l'utilisateur "mysql". 
 ``` bash
 sudo chown -Rv mysql:root /etc/mysql/ssl/*
  ```
+ > **WARNING** Si ces fichiers n'ont pas comme propriétaire "mysql", mariadb sera incapble de les voir et un message d'erreur vous indiquera que les certificats ne sont pas trouvés.
+
+## Copie des certicats et clé coté client
+Connectez vous à votre machine cliente. Nous allons
  
- 
+Depuis le client, utilisez la commande scp :
+``` bash
+scp <UTILISATEUR>@<IP SERVEUR>:/chemin/fichier /chemin/client
+```
+où :
+ - <UTILISATEUR> est le nom de l'utilisateur précédement créé sur le serveur
+ - <IP SERVEUR> est l'adresse IP du serveur
+ - /chemin/fichier est le chemin absolu du fichier sur le serveur
+ - /chemin/client est le chemin local où vous souhaitez copier le fichier
+
+Exemple :
+``` bash
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-cert.pem /home/utilisateur/.mysql/
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/client-key.pem /home/utilisateur/.mysql/
+scp nom_utilisateur@192.168.1.100:/home/nom_utilisateur/ssl/ca-cert.pem /home/utilisateur/.mysql/
+```
+
+# Configuration de Mariadb
+Logguez vous sur l'hôte serveur
+
+ ``` bash
+Mariadb -u root -p
+ ```
+
+Créez une base de données et un compte SQL
+ ``` bash
+CREATE DATABASE db_test ;
+CREATE USER 'admin'@'%' IDENTIFIED BY 'password' REQUIRE SSL;
+GRANT ALL PRIVILEGES ON db_test.* TO admin'@'%';
+FLUSH PRIVILEGES ;
+```
+ - 'admin'@'%' signifie que l'utilisateur "admin" est autorisé à se connecter à la base de données à partir de n'importe quelle adresse IP ou nom d'hôte
+  - La clause REQUIRE SSL spécifie que les connexions à ce compte doivent être établies en utilisant le protocole SSL. Si un client tente de se connecter à ce compte sans utiliser SSL ou TLS, la connexion sera refusée.  
+
+Modifiez le fichier de configuration du serveur Mariadb
+``` bash
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+ ```
+Ajoutez ces lignes dans le groupe [mysqld]
+``` bash
+[mysqld]
+…
+log_warnings=9
+log_error = /var/log/mysql/error.log
+...
+ssl-ca = /etc/mysql/ssl/ca-cert.pem
+ssl-cert = /etc/mysql/ssl/server-cert.pem
+ssl-key = /etc/mysql/ssl/server-key.pem
+``` bash
+
+Redémarrez le serveur Mariadb:
+``` bash
+ sudo systemctl restart mariadb.service
+```
+
+Si le serveur ne redémarre pas, lisez le message d’erreur de la commande
+``` bash
+sudo systemctl status mariadb.service
+```
+Affichez les journaux d’erreur
+``` bash
+cat /var/log/mysql/error.log
+```
