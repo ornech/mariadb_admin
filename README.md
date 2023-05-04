@@ -125,13 +125,14 @@ Le service Mariadb est maintenant accessible depuis n’importe quelle adresse I
 
 ![image](https://user-images.githubusercontent.com/101867500/236311373-ffc386f5-5f56-4de7-99c5-b8c92f98d054.png)
 
-# Création du certificat CA (TLS/SSL)
+# Création des clés et certificats SSL
 
 Note: Nous allons 3 certificats. A chaque création de certificat, nous devons impérativement renseigner un CN (Common Name) différent, comme par exemple :
  - CA common Name : MariaDB_CA
  - Serveur common Name : [IP DU SERVEUR]
  - Client common Name : MariaDB_client
 
+## Générez la clé et le certicat d'autorité CA
  a) Depuis le serveur, créez le répertoire /etc/mysql/ssl
 ``` bash
 cd /etc/mysql
@@ -173,7 +174,7 @@ ls -la
 sudo chmod 644 ./ca-cert.pem
 sudo chown mysql:root ./ca-cert.pem
 ```
-# Générer la clé et certificat serveur
+## Générer la clé et certificat serveur
 Créez la clé serveur
 ``` bash
 sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
@@ -187,7 +188,7 @@ Signez le certificat serveur avec le certificat d’autorité et la clé CA
 sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
-# Générez la clé et le certificat client
+## Générez la clé et le certificat client
 Créez le clé client
 ``` bash
 openssl req -newkey rsa:2048 -days 365000 -subj "/CN=Mariadb_Client" -nodes -keyout client-key.pem -out client-req.pem
@@ -201,3 +202,7 @@ Signez le certificat client avec le certificat d’autorité et la clé CA
 openssl x509 -req -in client-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
 ```
 
+## Verification des certificats
+``` bash
+openssl verify -CAfile ca-cert.pem server-cert.pem client-cert.pem
+```
