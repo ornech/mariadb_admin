@@ -5,9 +5,9 @@
  - [ ] Créer un compte système
  - [ ] Configurer Open-SSH
 
-## Création des clés
+## Génération des clés
 - [ ] Génération de la clé CA
-- [ ] Génération du certificat CA
+- [ ] Génération du certificat CA autosigné
 - [ ] Génération de la clé serveur
 - [ ] Suppression du mot de passe de la clé serveur
 - [ ] Génération du certificat serveur
