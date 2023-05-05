@@ -176,7 +176,7 @@ openssl x509 -noout -dates -in /etc/mysql/ssl/ca-cert.pem
 ## Générer la clé et certificat serveur
 
 Générez une requête de certificat
- Le fichier CSR (Certificate Signing Request) contient des informations sur l'entité ou l'utilisateur qui demande le certificat, y compris la clé publique qui sera incluse dans le certificat.
+ Avant d'obtenir un certificat signé, nous devons effectué un fichier CSR (Certificate Signing Request).  contient des informations sur l'entité ou l'utilisateur qui demande le certificat, y compris la clé publique qui sera incluse dans le certificat.
 ``` bash
 openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.csr
 ```
