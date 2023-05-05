@@ -1,7 +1,15 @@
-# Présentation
+# Sécurisation des connexions Client SQL/Mariadb
+
+## De quoi parle t-on ?
+ * Nous allons utiliser des certificats SSL pour authentifier un client SQL distant qui souhaite se connecter à un serveur SQL (Mariadb v10.11.3), afin de s'assurer qu'il soit bien autorisé à se connecter. 
+ * Nous allons également utiliser des certificats SSL pour authentifier le serveur SQL (Mariadb v10.11.3) auprès des clients distants, afin de garantir que les clients se connectent bien au serveur souhaité.
 
 ## Que cherche t-on a obtenir ?
 ![image](https://user-images.githubusercontent.com/101867500/236282961-03069477-f3fb-4fa3-b5c9-997182ba1ad1.png)
+
+> **INFO** Un certificat numérique est un document électronique qui sert à prouver l'identité d'un ordinateur ou d'un site web sur internet. Ce document permet également de sécuriser les communications entre ces différents éléments. Par exemple, lorsque vous vous connectez à un site web en utilisant un navigateur, un certificat est utilisé pour chiffrer les données que vous échangez avec le site, afin que personne ne puisse les intercepter ou les lire. Ici nous nous servirons des certificats pour vérifier que le client et le serveur sont bien les machines qui prétendent être avant d'établir la connexion avec Mariadb.
+
+Pour générer ces certificats numériques, nous allons effectuer une **requêtes de certificat** à une autorité de certification (CA), qui vérifie aura la charge de fournit et  le certificat numérique correspondant.
 
 ## Liste des commandes utilisée
 
