@@ -113,11 +113,11 @@ Sans surprise, Mariadb ne répond pas.
 
 ## Autorisez les connexions distantes vers Mariadb
 
-Rendez-vous sur le serveur et éditez le fichier 50-server.cnf
+Rendez-vous sur le serveur et éditez le fichier /etc/mysql/mariadb.conf.d/50-server.cnf
 ``` bash
 sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
-https://mariadb.com/kb/en/configuring-mariadb-for-remote-client-access/
+> **DOC** https://mariadb.com/kb/en/configuring-mariadb-for-remote-client-access/
 
 ``` bash
 [mysqld]
@@ -175,9 +175,10 @@ openssl x509 -noout -dates -in /etc/mysql/ssl/ca-cert.pem
 
 ## Générer la clé et certificat serveur
 
-Créez la clé serveur
+Générez une requête de certificat
+ Le fichier CSR (Certificate Signing Request) contient des informations sur l'entité ou l'utilisateur qui demande le certificat, y compris la clé publique qui sera incluse dans le certificat.
 ``` bash
-openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
+openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.csr
 ```
 > **Note**
 > Remarquez que nous avons défini le CN serveur avec l'option -subj "/CN=192.168.1.82" 
@@ -188,7 +189,7 @@ openssl rsa -in server-key.pem -out server-key.pem
 ```
 Signez le certificat serveur avec le certificat d’autorité et la clé CA
 ``` bash
-openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+openssl x509 -req -in server-req.csr -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 ```
 
 > **Note** Vous venez de créer dans /home/<VOTRE UTILISATEUR>/ssl/ les fichiers:
