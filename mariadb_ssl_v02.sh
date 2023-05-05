@@ -10,23 +10,29 @@ sudo openssl genrsa 2048 > ca-key.pem
 sudo openssl req -new -x509 -nodes -days 365000 -subj "/CN=Mariadb_CA" -key ca-key.pem -out ca-cert.pem
 
 # certificat et clé serveur
-sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.pem
+# -keyout: clé privé
+# -out: certificat public associé à la clé
+# Création d'un CSR ???
+sudo openssl req -newkey rsa:2048 -days 365000 -subj "/CN=192.168.1.82" -nodes -keyout server-key.pem -out server-req.csr
 # Supprime toute phrase secrète associée à la clé privée server-key.pem
 sudo openssl rsa -in server-key.pem -out server-key.pem
 # Signe le certificat serveur avec le certificat d’autorité et la clé CA
-sudo openssl x509 -req -in server-req.pem -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+sudo openssl x509 -req -in server-req.csr -days 365000  -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 
 
 # certificat et clé client
-openssl req -newkey rsa:2048 -days 365000 -subj "/CN=Mariadb_Client" -nodes -keyout client-key.pem -out client-req.pem
+openssl req -newkey rsa:2048 -days 365000 -subj "/CN=Mariadb_Client" -nodes -keyout client-key.pem -out client-req.csr
 # Supprime toute phrase secrète associée à la clé privée server-key.pem
 openssl rsa -in client-key.pem -out client-key.pem
 # Signe le certificat client avec le certificat d’autorité et la clé CA
-openssl x509 -req -in client-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
+openssl x509 -req -in client-req.csr -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 02 -out client-cert.pem
 
 
 # Verification des certificats
 openssl verify -CAfile ca-cert.pem server-cert.pem client-cert.pem
+# if( $? == 0) // ok
+# then //il y a eut une erreur
+# endif
 
 # Copie clé et certificat coté serveur
 sudo cp -v ./server-cert.pem /etc/mysql/ssl/server-cert.pem
